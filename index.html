@@ -10,7 +10,7 @@
     <script type="text/javascript" src="xmlToJson.js"></script>
 
     <script type="text/javascript" src="grid-creator.js"></script>
-    <script type="text/javascript" src="playing-field.js"></script>
+    
 </head>
 <body>
 
@@ -25,17 +25,15 @@
         <span class="col-sm-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                    <h5 class="card-title">Competition Map</h5>
+                    <p class="card-text">LL is for "Lower Left", and UR is for "Upper Right"</p>
                 </div>
             </div>
         </span>
         <span class="col-sm-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Competition Map</h5>
-                    <p class="card-text">LL is for "Lower Left", and UR is for "Upper Right"</p>
+                    
                     <a href="#" class="btn btn-dark border" onclick="numberValueXmlToElements('example-layout.xml');">Load Example Layout</a>
                 </div>
             </div>
@@ -117,62 +115,61 @@
         <input v-bind:id="title" v-bind:name="title" type="number" value="1" v-bind:min="min" v-bind:max="max" />
     </div>
 </script>
-    
 <script>
     // Define a new component called area-input
-    Vue.component('area-input', {
-        props: ['title'],
-        template: '#area-input-template',
-        data: function () {
-            return {
-                parts: ["_LL_x","_LL_y","_UR_x","_UR_y"]
-            }
-        }
-    })
-    Vue.component('corner-input', {
-        props: ['title'],
-        template: '#corner-input-template',
-        data: function () {
-            return {
-                parts: [0,1,2,3]
-            }
-        }
-    })
-    Vue.component('team-input', {
-        props: ['title','min','max'],
-        template: '#team-input-template',
-        data: function () {
-            return {
-            }
-        }
-    })
-
-    var app = new Vue({
-        el: '#app',
-        data: {
-            title:"area1",
+Vue.component('area-input', {
+    props: ['title'],
+    template: '#area-input-template',
+    data: function () {
+        return {
             parts: ["_LL_x","_LL_y","_UR_x","_UR_y"]
         }
-    })
+    }
+})
+Vue.component('corner-input', {
+    props: ['title'],
+    template: '#corner-input-template',
+    data: function () {
+        return {
+            parts: [0,1,2,3]
+        }
+    }
+})
+Vue.component('team-input', {
+    props: ['title','min','max'],
+    template: '#team-input-template',
+    data: function () {
+        return {
+        }
+    }
+})
 
-    var playingField = new GridCreator("competition-field",15,9,2);
-    
-    // Adding new corner markers
-    playingField.addPointIdentifier("RedCorner","red");
-    playingField.addPointIdentifier("GreenCorner","green");
+var app = new Vue({
+    el: '#app',
+    data: {
+        title:"area1",
+        parts: ["_LL_x","_LL_y","_UR_x","_UR_y"]
+    }
+})
 
-    // Adding new areas, using 'id'
-    playingField.addAreaIdentifier("Red","red");
-    playingField.addAreaIdentifier("Green","green");
-    playingField.addAreaIdentifier("Island","yellow");
-    playingField.addAreaIdentifier("TNR","purple");
-    playingField.addAreaIdentifier("TNG","blue");
-    playingField.addAreaIdentifier("SZR","red");
-    playingField.addAreaIdentifier("SZG","green");
+var playingField = new GridCreator("competition-field",15,9,2);
 
-    // Just a continuously running function to update the tiles
-    setInterval(function() {
-        playingField.updateCanvas();
-    }, 200);
-</script>
+// Adding new corner markers
+playingField.addPointIdentifier("RedCorner","red");
+playingField.addPointIdentifier("GreenCorner","green");
+
+// Adding new areas, using 'id'
+playingField.addAreaIdentifier("Red","red");
+playingField.addAreaIdentifier("Green","green");
+playingField.addAreaIdentifier("Island","yellow");
+playingField.addAreaIdentifier("TNR","purple");
+playingField.addAreaIdentifier("TNG","blue");
+playingField.addAreaIdentifier("SZR","red");
+playingField.addAreaIdentifier("SZG","green");
+
+// Just a continuously running function to update the tiles
+setInterval(function() {
+    playingField.updateCanvas();
+}, 200);
+</script>>
 </html>

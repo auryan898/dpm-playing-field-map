@@ -105,7 +105,7 @@ class GridCreator {
         let reduceY = this.tileHeight * 2 / 3;
         let reduceX = this.tileHeight * 2 / 3;
         c.fillStyle = "#ffffff";
-        c.fillRect(lx + (reduceX+this.borderWidth), ly + (reduceY+this.borderWidth), this.tileWidth - (reduceX+this.borderWidth) * 2, this.tileHeight - (reduceY+this.borderWidth) * 2);
+        c.fillRect(lx + (reduceX+this.borderWidth*2), ly + (reduceY+this.borderWidth*2), this.tileWidth - (reduceX+this.borderWidth*2) * 2, this.tileHeight - (reduceY+this.borderWidth*2) * 2);
         c.fillStyle = color;
         c.fillRect(lx + reduceX, ly + reduceY, this.tileWidth - reduceX * 2, this.tileHeight - reduceY * 2);
         
@@ -136,5 +136,26 @@ class GridCreator {
             this.createCornerPoint(...this.convertCornerIndex(index), this.cornerNames[cornerName]);
         }
     }
+}
+
+async function numberValueXmlToElements(xmlFileUrl) {
+    const response = await fetch(xmlFileUrl);
+    const text = await response.text();
+    var root = new DOMParser().parseFromString(text, 'text/xml');
+    var nodes = root.getElementsByTagName('value');
+    for (var i = 0; i < nodes.length; i++) {
+        let id = nodes[i].getAttribute('key');
+        let val = nodes[i].textContent
+        try {
+            document.getElementById(id).value = parseInt(val);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+}
+
+function getAsXmlValueTag(elementId){
+    //<value key="GreenTeam">1</value>
+    return '<value key="'+ elementId + '">'+ document.getElementById(elementId).value +'</value>';
 }
 
