@@ -155,7 +155,28 @@ async function numberValueXmlToElements(xmlFileUrl) {
 }
 
 function getAsXmlValueTag(elementId){
-    //<value key="GreenTeam">1</value>
-    return '<value key="'+ elementId + '">'+ document.getElementById(elementId).value +'</value>';
+    try {
+        return '<value key="'+ elementId + '">'+ document.getElementById(elementId).value +'</value>\n';
+    } catch (err) {
+        console.log(elementId);
+        return '';
+    }
 }
 
+class XMLCreator {
+    constructor() {
+        this.elements = [];
+    }
+
+    addElementId(id) {
+        this.elements.push(id);
+    }
+
+    createValueBasedXML() {
+        let result = "<xml>\n";
+        for (let i = 0; i < this.elements.length; i++) {
+            result += '  ' + getAsXmlValueTag(this.elements[i]);
+        }
+        return result + "</xml>\n";
+    }
+}

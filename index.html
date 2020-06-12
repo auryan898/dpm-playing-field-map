@@ -10,6 +10,7 @@
     <script type="text/javascript" src="xmlToJson.js"></script>
 
     <script type="text/javascript" src="grid-creator.js"></script>
+    <script type="text/javascript" src="playing-field.js"></script>
     
 </head>
 <body>
@@ -21,8 +22,8 @@
 
 <div id="app" class="container-fluid">
     <!-- Create the input elements -->
-    <span class="row my-2">
-        <span class="col-sm-4">
+    <span class="row ">
+        <span class="col-lg-4 col-md-12 my-2">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Competition Map</h5>
@@ -30,19 +31,18 @@
                 </div>
             </div>
         </span>
-        <span class="col-sm-4">
+        <span class="col-lg-4 col-sm-6 my-2">
             <div class="card">
                 <div class="card-body">
-                    
-                    <a href="#" class="btn btn-dark border" onclick="numberValueXmlToElements('example-layout.xml');">Load Example Layout</a>
+                    <a href="#" class="btn btn-dark border display-block" onclick="numberValueXmlToElements('example-layout.xml');">Load Example Layout</a>
                 </div>
             </div>
         </span>
-        <span class="col-sm-4">
+        <span class="col-lg-4 col-sm-6 my-2">
             <div class="card">
                 <div class="card-body">
                     <a class="btn btn-light border display-block mb-1">Paste in a Layout</a>
-                    <a class="btn btn-light border display-block mb-1">Copy Layout to Clipboard</a>
+                    <a class="btn btn-light border display-block mb-1" onclick="copyToClipboard(xmlCreator.createValueBasedXML())">Copy Layout to Clipboard</a>
                     <a class="btn btn-light border display-block mb-1">Reset All Values</a>
                 </div>
             </div>
@@ -51,19 +51,11 @@
 
     </span>
     <div class="row"> 
-        <corner-input title="RedCorner"></corner-input>
-        <corner-input title="GreenCorner"></corner-input>
-        <team-input title="RedTeam" min="1" max="199"></team-input>
-        <team-input title="GreenTeam" min="1" max="199"></team-input>
+        <team-input v-for="(properties, title) in team_inputs" v-bind:title="title" v-bind:min="properties.min" v-bind:max="properties.max"></team-input>
+        <corner-input v-for="(properties, title) in corner_inputs" v-bind:title="title"></corner-input>
     </div>
+    <area-input v-for="(properties, title) in area_inputs" v-bind:title="title"></area-input>
     
-    <area-input title="Red"></area-input>
-    <area-input title="Green"></area-input>
-    <area-input title="Island"></area-input>
-    <area-input title="TNR"></area-input>
-    <area-input title="TNG"></area-input>
-    <area-input title="SZR"></area-input>
-    <area-input title="SZG"></area-input>
 </div>
 
 </body>
@@ -116,7 +108,7 @@
     </div>
 </script>
 <script>
-    // Define a new component called area-input
+// Define a new component called area-input
 Vue.component('area-input', {
     props: ['title'],
     template: '#area-input-template',
@@ -143,33 +135,65 @@ Vue.component('team-input', {
         }
     }
 })
-
-var app = new Vue({
+let playingField = new GridCreator("competition-field",15,9,2);
+let xmlCreator = new XMLCreator();
+let app = new Vue({
     el: '#app',
     data: {
         title:"area1",
-        parts: ["_LL_x","_LL_y","_UR_x","_UR_y"]
+        parts: ["_LL_x","_LL_y","_UR_x","_UR_y"],
+        team_inputs:  {"RedTeam":{"color":"red", "min":1, "max":199},"GreenTeam":{"color":"green", "min":1, "max":199}},
+        corner_inputs:{"RedCorner":{"color":"red"},"GreenCorner":{"color":"green"}},
+        area_inputs:  {
+            "Red":{"color":"red"},
+            "Green":{"color":"green"},
+            "Orange":{"color":"orange"},
+            "Island":{"color":"yellow"},
+            "TNR":{"color":"purple"},
+            "TNG":{"color":"blue"},
+            "SZR":{"color":"red"},
+            "SZG":{"color":"green"}
+        }
+    },
+    mounted: function () {
+        let this_1 = this;
+        this.$nextTick(function () {
+            let area_parts = ["_LL_x","_LL_y","_UR_x","_UR_y"];
+            for (let team_input in this_1.team_inputs) {
+                xmlCreator.addElementId(team_input);
+            }
+            for (let corner_input in this_1.corner_inputs) {
+                playingField.addPointIdentifier(corner_input, this_1.corner_inputs[corner_input].color);
+                xmlCreator.addElementId(corner_input);
+            }
+            for (let area_input in this_1.area_inputs) {
+                playingField.addAreaIdentifier(area_input, this_1.area_inputs[area_input].color);
+                for (let i = 0; i < area_parts.length; i++){
+                    xmlCreator.addElementId(area_input + area_parts[i]);
+                }
+            }
+        })
     }
-})
+});
 
-var playingField = new GridCreator("competition-field",15,9,2);
+
 
 // Adding new corner markers
-playingField.addPointIdentifier("RedCorner","red");
-playingField.addPointIdentifier("GreenCorner","green");
+// playingField.addPointIdentifier("RedCorner","red");
+// playingField.addPointIdentifier("GreenCorner","green");
 
 // Adding new areas, using 'id'
-playingField.addAreaIdentifier("Red","red");
-playingField.addAreaIdentifier("Green","green");
-playingField.addAreaIdentifier("Island","yellow");
-playingField.addAreaIdentifier("TNR","purple");
-playingField.addAreaIdentifier("TNG","blue");
-playingField.addAreaIdentifier("SZR","red");
-playingField.addAreaIdentifier("SZG","green");
+// playingField.addAreaIdentifier("Red","red");
+// playingField.addAreaIdentifier("Green","green");
+// playingField.addAreaIdentifier("Island","yellow");
+// playingField.addAreaIdentifier("TNR","purple");
+// playingField.addAreaIdentifier("TNG","blue");
+// playingField.addAreaIdentifier("SZR","red");
+// playingField.addAreaIdentifier("SZG","green");
 
 // Just a continuously running function to update the tiles
 setInterval(function() {
     playingField.updateCanvas();
 }, 200);
-</script>>
+</script>
 </html>
