@@ -47,9 +47,9 @@
         <span class="col-lg-4 col-sm-6 my-2">
             <div class="card">
                 <div class="card-body">
-                    <a class="btn btn-light border display-block mb-1" onclick="copyToClipboard(xmlCreator.createValueBasedXML())">Copy Layout to Clipboard</a>
+                    <a class="btn btn-light border display-block mb-1" onclick="copyToClipboard(valueTracker.createValueBasedXML())">Copy Layout to Clipboard</a>
+                    <a class="btn btn-light border display-block mb-1" onclick="valueTracker.resetElementsToDefault();">Reset All Values</a>
                     <a class="btn btn-light border display-block mb-1 disabled">Paste in a Layout</a>
-                    <a class="btn btn-light border display-block mb-1 disabled">Reset All Values</a>
                 </div>
             </div>
         </span>
@@ -60,7 +60,7 @@
         <team-input v-for="(properties, title) in team_inputs" v-bind:title="title" v-bind:min="properties.min" v-bind:max="properties.max"></team-input>
         <corner-input v-for="(properties, title) in corner_inputs" v-bind:title="title"></corner-input>
     </div>
-    <area-input v-for="(properties, title) in area_inputs" v-bind:title="title"></area-input>
+    <area-input v-for="(properties, title) in area_inputs" v-bind:title="title" v-bind:min="properties.min" v-bind:max="properties.max"></area-input>
     
 </div>
 
@@ -95,7 +95,7 @@
         <span class="col-lg-3 col-sm-6 col-md-6 border" v-for="part in parts">
             <!-- Define the input of tile area coordinates -->
             <label v-bind:for="title+part">{{title+part}}</label>    
-            <input class="pl-auto" v-bind:id="title+part" v-bind:name="title+part" type="number" value="0" min="0" max="99" />
+            <input class="pl-auto" v-bind:id="title+part" v-bind:name="title+part" type="number" v-bind:min="min" v-bind:max="max" />
         </span>
     </div>
 </script>
@@ -110,13 +110,13 @@
 <script type="text/x-template" id="team-input-template">
     <div class="col-lg-3 col-sm-6 col-md-6 border">
         <label v-bind:for="title">{{title}}</label>
-        <input v-bind:id="title" v-bind:name="title" type="number" value="1" v-bind:min="min" v-bind:max="max" />
+        <input v-bind:id="title" v-bind:name="title" type="number" v-bind:min="min" v-bind:max="max" />
     </div>
 </script>
 <script>
 // Define a new component called area-input
 Vue.component('area-input', {
-    props: ['title'],
+    props: ['title','min','max'],
     template: '#area-input-template',
     data: function () {
         return {
@@ -142,23 +142,28 @@ Vue.component('team-input', {
     }
 })
 let playingField = new GridCreator("competition-field",15,9,2);
-let xmlCreator = new XMLCreator();
+let valueTracker = new InputValueTracker();
 let app = new Vue({
     el: '#app',
     data: {
         title:"area1",
-        parts: ["_LL_x","_LL_y","_UR_x","_UR_y"],
-        team_inputs:  {"RedTeam":{"color":"red", "min":1, "max":199},"GreenTeam":{"color":"green", "min":1, "max":199}},
-        corner_inputs:{"RedCorner":{"color":"red"},"GreenCorner":{"color":"green"}},
+        area_parts: ["_LL_x","_LL_y","_UR_x","_UR_y"],
+        team_inputs:  {
+            "RedTeam":{"color":"red", "min":1, "max":199, "default":1},
+            "GreenTeam":{"color":"green", "min":1, "max":199, "default":1}
+        },
+        corner_inputs:{
+            "RedCorner":{"color":"red", "default":0},
+            "GreenCorner":{"color":"green", "default":0}
+        },
         area_inputs:  {
-            "Red":{"color":"red"},
-            "Green":{"color":"green"},
-            
-            "Island":{"color":"yellow"},
-            "TNR":{"color":"purple"},
-            "TNG":{"color":"blue"},
-            "SZR":{"color":"red"},
-            "SZG":{"color":"green"}
+            "Red":{"color":"red", "default":0, "min":1, "max":99},
+            "Green":{"color":"green", "default":0, "min":1, "max":99},
+            "Island":{"color":"yellow", "default":0, "min":1, "max":99},
+            "TNR":{"color":"purple", "default":0, "min":1, "max":99},
+            "TNG":{"color":"blue", "default":0, "min":1, "max":99},
+            "SZR":{"color":"red", "default":0, "min":1, "max":99},
+            "SZG":{"color":"green", "default":0, "min":1, "max":99}
         }
     },
     mounted: function () {
@@ -166,18 +171,19 @@ let app = new Vue({
         this.$nextTick(function () {
             let area_parts = ["_LL_x","_LL_y","_UR_x","_UR_y"];
             for (let team_input in this_1.team_inputs) {
-                xmlCreator.addElementId(team_input);
-            }
+                valueTracker.addElementId(team_input, this_1.team_inputs[team_input]);
+0            }
             for (let corner_input in this_1.corner_inputs) {
                 playingField.addPointIdentifier(corner_input, this_1.corner_inputs[corner_input].color);
-                xmlCreator.addElementId(corner_input);
+                valueTracker.addElementId(corner_input, this_1.corner_inputs[corner_input]);
             }
             for (let area_input in this_1.area_inputs) {
                 playingField.addAreaIdentifier(area_input, this_1.area_inputs[area_input].color);
                 for (let i = 0; i < area_parts.length; i++){
-                    xmlCreator.addElementId(area_input + area_parts[i]);
+                    valueTracker.addElementId(area_input + area_parts[i], this_1.area_inputs[area_input]);
                 }
             }
+            valueTracker.resetElementsToDefault()
         })
     }
 });

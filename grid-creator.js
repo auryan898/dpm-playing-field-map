@@ -163,20 +163,29 @@ function getAsXmlValueTag(elementId){
     }
 }
 
-class XMLCreator {
+class InputValueTracker {
     constructor() {
-        this.elements = [];
+        this.elements = {};
     }
 
-    addElementId(id) {
-        this.elements.push(id);
+    addElementId(id, properties) {
+        this.elements[id] = properties;
     }
 
     createValueBasedXML() {
         let result = "<xml>\n";
-        for (let i = 0; i < this.elements.length; i++) {
-            result += '  ' + getAsXmlValueTag(this.elements[i]);
+        for (let element in this.elements) {
+            result += '  ' + getAsXmlValueTag(element);
         }
         return result + "</xml>\n";
+    }
+
+    resetElementsToDefault() {
+        for (let element in this.elements) {
+            let prop = this.elements[element];
+            if (prop.hasOwnProperty('default')) {
+                document.getElementById(element).value = prop['default'];
+            }
+        }
     }
 }
