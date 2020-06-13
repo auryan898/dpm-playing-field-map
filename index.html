@@ -21,6 +21,34 @@
 
 
 <div id="app" class="container-fluid">
+    <!-- Popup window for pasting in an xml layout -->
+    <div class="modal fade" id="pasteXmlModal" tabindex="-1" role="dialog" aria-labelledby="pasteXmlModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pasteXmlModalLabel">Paste in the XML Layout</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Text Area for xml data -->
+                    <div class="form-group">
+                        <label for="xmlModalTextInput">Write your layout here, then confirm:</label>
+                        <textarea class="form-control" id="xmlModalTextInput" rows="5"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-warning text-white" onclick="document.getElementById('xmlModalTextInput').value = '';">Clear Text</a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button id="pasteXmlModalConfirm" class="btn btn-primary" data-dismiss="modal" onclick="parseXmlToInputs(document.getElementById('xmlModalTextInput').value);">
+                        Confirm Layout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Create the input elements -->
     <span class="row ">
         <span class="col-lg-4 col-md-12 my-2">
@@ -31,27 +59,52 @@
                         This map is designed to assist students of DPM to visualize 
                         the possible layouts of the virtual playing field for their assignments.
                         This layout may not be consistent with official specifications, and will 
-                        updated when changes are made.
+                        be updated when changes are made.
                     </p>
                     <p class="card-text"><em>Note: LL is for "Lower Left", and UR is for "Upper Right"</em></p>
                 </div>
             </div>
         </span>
         <span class="col-lg-4 col-sm-6 my-2">
-            <div class="card">
-                <div class="card-body">
-                    <a href="#" class="btn btn-dark border display-block" onclick="numberValueXmlToElements('example-layout.xml');">Load Example Layout</a>
-                </div>
-            </div>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="#" class="btn btn-dark border display-block" onclick="parseXmlFileToInputs('example-layout.xml');">Load Example Layout</a>
+                </li>
+                <li class="list-group-item">
+                    <div class="input-group flex mb-1">
+                        <div class="custom-file">
+                            <label class="custom-file-label" for="xmlFileLayout" id="xmlFileLayoutLabel">Choose XML file</label>
+                            <input type="file" class="custom-file-input" id="xmlFileLayout" onchange="xmlFileLayoutOnChange(this.files[0].name);"  aria-describedby="xmlFileLayoutPre">
+                            <script>
+                                function xmlFileLayoutOnChange(name) {
+                                    document.getElementById('xmlFileLayoutLoad').classList.remove('disabled');
+                                    document.getElementById('xmlFileLayoutLabel').innerHTML = name;
+                                    parseXmlFileToInputs(document.getElementById('xmlFileLayout').files[0]);
+                                }
+                            </script>
+                        </div>
+                    </div>
+                    <a href="#" id="xmlFileLayoutLoad" class="btn btn-light border disabled display-block" onclick="parseXmlFileToInputs(document.getElementById('xmlFileLayout').files[0]);">
+                        Reload Chosen File
+                    </a>
+                </li>
+                <li class="list-group-item">
+                    <a class="btn btn-light border display-block mb-1" id="xmlFileDownload">Download Current Layout</a>
+                </li>
+            </ul>
         </span>
         <span class="col-lg-4 col-sm-6 my-2">
-            <div class="card">
-                <div class="card-body">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a class="btn btn-light border display-block mb-1" data-toggle="modal" data-target="#pasteXmlModal">Paste in a Layout</a>
+                </li>
+                <li class="list-group-item">
+                    <a class="btn btn-light border display-block mb-1" onclick="if(confirm('Reset Map?'))valueTracker.resetElementsToDefault();">Reset All Values</a>
+                </li>
+                <li class="list-group-item">
                     <a class="btn btn-light border display-block mb-1" onclick="copyToClipboard(valueTracker.createValueBasedXML())">Copy Layout to Clipboard</a>
-                    <a class="btn btn-light border display-block mb-1" onclick="valueTracker.resetElementsToDefault();">Reset All Values</a>
-                    <a class="btn btn-light border display-block mb-1 disabled">Paste in a Layout</a>
-                </div>
-            </div>
+                </li>
+            </ul>
         </span>
     </span>
 
@@ -69,6 +122,10 @@
     .display-block {
         display:block;
     }
+    .disabled:hover {
+        cursor: not-allowed;
+    }
+
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button {  
         opacity: 1;
@@ -188,6 +245,34 @@ let app = new Vue({
     }
 });
 
+(function() {
+    var textFile = null
+    var makeTextFile = function (text) {
+        var data = new Blob([text], {type: 'text/plain'});
+
+        // If we are replacing a previously generated file we need to
+        // manually revoke the object URL to avoid memory leaks.
+        if (textFile !== null) {
+            window.URL.revokeObjectURL(textFile);
+        }
+
+        textFile = window.URL.createObjectURL(data);
+
+        return textFile;
+    };
+
+    var _downloadButton = document.getElementById('xmlFileDownload')
+    
+    var obj = this;
+    _downloadButton.addEventListener('click', function() {
+      // Download the file
+      var link = document.createElement("a");
+      link.download = 'playing_field_layout.xml';
+      link.href = makeTextFile(valueTracker.createValueBasedXML()); // TODO: Include xml data
+      link.click();
+    }, false);
+})();
+    
 
 
 // Adding new corner markers

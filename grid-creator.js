@@ -138,9 +138,16 @@ class GridCreator {
     }
 }
 
-async function numberValueXmlToElements(xmlFileUrl) {
-    const response = await fetch(xmlFileUrl);
-    const text = await response.text();
+async function parseXmlFileToInputs(xmlFile) {
+    let response = xmlFile;
+    if (typeof xmlFile == "string") {
+        response = await fetch(xmlFile);
+    }
+    let text =  await response.text();
+    parseXmlToInputs(text);
+}
+
+function parseXmlToInputs(text) {
     var root = new DOMParser().parseFromString(text, 'text/xml');
     var nodes = root.getElementsByTagName('value');
     for (var i = 0; i < nodes.length; i++) {
