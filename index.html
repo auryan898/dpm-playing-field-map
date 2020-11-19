@@ -221,7 +221,7 @@ let app = new Vue({
         loadPlayingFieldSetup : function(filename = null) {
             let vm = this;
             valueTracker = new InputValueTracker();
-            fetch("./playingFieldsetups/"+filename).then(res => res.json()).then(data => {
+            fetch("playingFieldSetups/"+filename).then(res => res.json()).then(data => {
                 vm.playingFieldSetup = data;
                 return data;
             }).then(data => {
