@@ -1,0 +1,20 @@
+{
+  "area_parts": ["_LL_x", "_LL_y", "_UR_x", "_UR_y"],
+  "team_inputs": {
+    "RedTeam": { "color": "red", "min": 1, "max": 199, "default": 1 },
+    "GreenTeam": { "color": "green", "min": 1, "max": 199, "default": 1 }
+  },
+  "corner_inputs": {
+    "RedCorner": { "color": "red", "default": 0 },
+    "GreenCorner": { "color": "green", "default": 0 }
+  },
+  "area_inputs": {
+    "Red": { "color": "red", "default": 0, "min": 1, "max": 99 },
+    "Green": { "color": "green", "default": 0, "min": 1, "max": 99 },
+    "Island": { "color": "yellow", "default": 0, "min": 1, "max": 99 },
+    "TNR": { "color": "purple", "default": 0, "min": 1, "max": 99 },
+    "TNG": { "color": "blue", "default": 0, "min": 1, "max": 99 },
+    "SZR": { "color": "red", "default": 0, "min": 1, "max": 99 },
+    "SZG": { "color": "green", "default": 0, "min": 1, "max": 99 }
+  }
+}

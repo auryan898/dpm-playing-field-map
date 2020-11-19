@@ -68,7 +68,7 @@
         <span class="col-lg-4 col-sm-6 my-2">
             <ul class="list-group">
                 <li class="list-group-item">
-                    <a href="#" class="btn btn-dark border display-block" onclick="parseXmlFileToInputs('example-layout.xml');">Load Example Layout</a>
+                    <a href="#" class="btn btn-dark border display-block" onclick="parseXmlFileToInputs('xmlLayouts/example-layout.xml');">Load Example Layout</a>
                 </li>
                 <li class="list-group-item">
                     <div class="input-group flex mb-1">
@@ -110,10 +110,10 @@
 
     </span>
     <div class="row"> 
-        <team-input v-for="(properties, title) in team_inputs" v-bind:title="title" v-bind:min="properties.min" v-bind:max="properties.max"></team-input>
-        <corner-input v-for="(properties, title) in corner_inputs" v-bind:title="title"></corner-input>
+        <team-input v-for="(properties, title) in playingFieldSetup.team_inputs" v-bind:title="title" v-bind:min="properties.min" v-bind:max="properties.max"></team-input>
+        <corner-input v-for="(properties, title) in playingFieldSetup.corner_inputs" v-bind:title="title"></corner-input>
     </div>
-    <area-input v-for="(properties, title) in area_inputs" v-bind:title="title" v-bind:min="properties.min" v-bind:max="properties.max"></area-input>
+    <area-input v-for="(properties, title) in playingFieldSetup.area_inputs" v-bind:title="title" v-bind:min="properties.min" v-bind:max="properties.max"></area-input>
     
 </div>
 
@@ -202,46 +202,38 @@ let playingField = new GridCreator("competition-field",15,9,2);
 let valueTracker = new InputValueTracker();
 let app = new Vue({
     el: '#app',
-    data: {
-        title:"area1",
-        area_parts: ["_LL_x","_LL_y","_UR_x","_UR_y"],
-        team_inputs:  {
-            "RedTeam":{"color":"red", "min":1, "max":199, "default":1},
-            "GreenTeam":{"color":"green", "min":1, "max":199, "default":1}
-        },
-        corner_inputs:{
-            "RedCorner":{"color":"red", "default":0},
-            "GreenCorner":{"color":"green", "default":0}
-        },
-        area_inputs:  {
-            "Red":{"color":"red", "default":0, "min":1, "max":99},
-            "Green":{"color":"green", "default":0, "min":1, "max":99},
-            "Island":{"color":"yellow", "default":0, "min":1, "max":99},
-            "TNR":{"color":"purple", "default":0, "min":1, "max":99},
-            "TNG":{"color":"blue", "default":0, "min":1, "max":99},
-            "SZR":{"color":"red", "default":0, "min":1, "max":99},
-            "SZG":{"color":"green", "default":0, "min":1, "max":99}
-        }
+    created: function() {
+        loadPlayingFieldSetup(this.setupFilename)
     },
-    mounted: function () {
-        let this_1 = this;
-        this.$nextTick(function () {
-            let area_parts = ["_LL_x","_LL_y","_UR_x","_UR_y"];
-            for (let team_input in this_1.team_inputs) {
-                valueTracker.addElementId(team_input, this_1.team_inputs[team_input]);
-0            }
-            for (let corner_input in this_1.corner_inputs) {
-                playingField.addPointIdentifier(corner_input, this_1.corner_inputs[corner_input].color);
-                valueTracker.addElementId(corner_input, this_1.corner_inputs[corner_input]);
-            }
-            for (let area_input in this_1.area_inputs) {
-                playingField.addAreaIdentifier(area_input, this_1.area_inputs[area_input].color);
-                for (let i = 0; i < area_parts.length; i++){
-                    valueTracker.addElementId(area_input + area_parts[i], this_1.area_inputs[area_input]);
+    data: {
+        setupFilename: 'setup_W2020.json',
+        playingFieldSetup : {}
+    },
+    methods: {
+        loadPlayingFieldSetup : function(filename) {
+            let vm = this;
+            fetch("./playingFieldsetups/"+filename).then(res => res.json()).then(data => {
+                vm.playingFieldSetup = data;
+                return data;
+            }).then(data => {
+                let area_parts = vm.playingFieldSetup.area_parts;
+                for (let team_input in vm.playingFieldSetup.team_inputs) {
+                    valueTracker.addElementId(team_input, vm.playingFieldSetup.team_inputs[team_input]);
+    0            }
+                for (let corner_input in vm.playingFieldSetup.corner_inputs) {
+                    playingField.addPointIdentifier(corner_input, vm.playingFieldSetup.corner_inputs[corner_input].color);
+                    valueTracker.addElementId(corner_input, vm.playingFieldSetup.corner_inputs[corner_input]);
                 }
-            }
-            valueTracker.resetElementsToDefault()
-        })
+                for (let area_input in vm.playingFieldSetup.area_inputs) {
+                    playingField.addAreaIdentifier(area_input, vm.playingFieldSetup.area_inputs[area_input].color);
+                    for (let i = 0; i < area_parts.length; i++){
+                        valueTracker.addElementId(area_input + area_parts[i], vm.playingFieldSetup.area_inputs[area_input]);
+                    }
+                }
+                valueTracker.resetElementsToDefault()
+            })
+            .catch(err => console.error(err));
+        }
     }
 });
 
