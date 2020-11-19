@@ -199,7 +199,7 @@ Vue.component('team-input', {
     }
 })
 let playingField = new GridCreator("competition-field",15,9,2);
-let valueTracker = new InputValueTracker();
+let valueTracker;
 let app = new Vue({
     el: '#app',
     created: function() {
@@ -220,6 +220,7 @@ let app = new Vue({
     methods: {
         loadPlayingFieldSetup : function(filename = null) {
             let vm = this;
+            valueTracker = new InputValueTracker();
             fetch("./playingFieldsetups/"+filename).then(res => res.json()).then(data => {
                 vm.playingFieldSetup = data;
                 return data;
@@ -227,7 +228,7 @@ let app = new Vue({
                 let area_parts = vm.playingFieldSetup.area_parts;
                 for (let team_input in vm.playingFieldSetup.team_inputs) {
                     valueTracker.addElementId(team_input, vm.playingFieldSetup.team_inputs[team_input]);
-    0            }
+                }
                 for (let corner_input in vm.playingFieldSetup.corner_inputs) {
                     playingField.addPointIdentifier(corner_input, vm.playingFieldSetup.corner_inputs[corner_input].color);
                     valueTracker.addElementId(corner_input, vm.playingFieldSetup.corner_inputs[corner_input]);
