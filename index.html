@@ -68,7 +68,7 @@
         <span class="col-lg-4 col-sm-6 my-2">
             <ul class="list-group">
                 <li class="list-group-item">
-                    <a href="#" class="btn btn-dark border display-block" onclick="parseXmlFileToInputs('xmlLayouts/example-layout.xml');">Load Example Layout</a>
+                    <a href="#" class="btn btn-dark border display-block" onclick="parseXmlFileToInputs('xmlLayouts/'+app.exampleXMLFilename);">Load Example Layout</a>
                 </li>
                 <li class="list-group-item">
                     <div class="input-group flex mb-1">
@@ -203,14 +203,22 @@ let valueTracker = new InputValueTracker();
 let app = new Vue({
     el: '#app',
     created: function() {
-        loadPlayingFieldSetup(this.setupFilename)
+        this.loadPlayingFieldSetup(this.setupFilename)
     },
     data: {
-        setupFilename: 'setup_W2020.json',
-        playingFieldSetup : {}
+        // set to your own file for the playing field design.
+        // can change during execution, then run loadPlayingFieldSetup
+        setupFilename: 'setup_w2020.json', 
+
+        // set to example setup for the playing field.
+        // can be changed during execution
+        exampleXMLFilename: 'example-layout-w2020.xml', 
+
+        // don't change this, it should stay empty
+        playingFieldSetup : {} 
     },
     methods: {
-        loadPlayingFieldSetup : function(filename) {
+        loadPlayingFieldSetup : function(filename = null) {
             let vm = this;
             fetch("./playingFieldsetups/"+filename).then(res => res.json()).then(data => {
                 vm.playingFieldSetup = data;
